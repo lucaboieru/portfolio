@@ -37,7 +37,7 @@ config.operations = {
     apis: {
         getExample: {
             url: "/getExample",
-            method: "get",
+            method: "post",
             path: "exampleController/controller.js",
             access: {
                 roles: ["user"]

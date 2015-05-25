@@ -4,7 +4,7 @@ exports.login = function (source) {
 
     // check if user is already logged in
     if (source.req.session.role) {
-        return source.status(400).send("Already logged in");
+        return source.res.status(400).send("Already logged in");
     }
 
     // get username and password
@@ -31,12 +31,10 @@ exports.login = function (source) {
         var role = (user.role) ? user.role : null;
 
         // set session
-        if (role) {
-            source.req.session.role = role;
-        }
-        source.req.session.user = {
-            username: user.username
-        }
+        source.req.session.login = {
+            user: user.username,
+            role: role
+        };
 
         // end request
         source.res.writeHead(302, {"location": "http://" + source.req.headers.host + "/"});

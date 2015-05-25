@@ -1,4 +1,4 @@
-var mongo = require("../lib/mongo");
+var mongo = require("../../lib/mongo");
 
 exports.findUser = function (user, callback) {
 
