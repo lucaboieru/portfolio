@@ -28,6 +28,8 @@ Portfolio.controller("portfolioCtrl", function ($scope, $http) {
                 });
             })(i);
         }
+
+        $scope.skip = skip + $scope.limit;
     };
 });
 
