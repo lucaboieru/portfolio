@@ -3,41 +3,46 @@ var MongoClient = Mongo.MongoClient;
 var Server = Mongo.Server;
 var config = require("../config");
 
-var server = new Server(config.mongodb.host, config.mongodb.port, {
-    native_parser: true,
-    poolSize: 3
-});
+// Connection URL
+var url = 'mongodb://' + config.mongodb.host + ':' + config.mongodb.port + '/';
 
-var driver = new MongoClient(server, {
-    w: 1
-});
-
-var _connecting;
-var _clientCache;
-var buffer = [];
+var _clientCache = {};
+var connectingDBS = {};
+var buffer = {};
 
 /**
  * callbacks
  * Fires all buffered callbacks
  */
-function callbacks (err, client) {
+function callbacks (err, dbName) {
+    buffer[dbName] = buffer[dbName] || [];
 
     // handle error
     if (err) {
-        buffer.forEach(function(cBuff) {
+        buffer[dbName].forEach(function(cBuff) {
             cBuff.callback.call(this, err);
         });
 
-        buffer = [];
+        buffer[dbName] = [];
+        return;
+    }
+
+    // handle no db in cache
+    if (!_clientCache[dbName]) {
+        buffer[dbName].forEach(function(cBuff) {
+            cBuff.callback.call(this, new Error("DB object not found in cache"));
+        });
+
+        buffer[dbName] = [];
         return;
     }
 
     // fire buffered callbacks
-    buffer.forEach(function(cBuff) {
-        cBuff.callback.call(this, null, client.db(cBuff.dbName));
+    buffer[dbName].forEach(function(cBuff) {
+        cBuff.callback.call(this, null, _clientCache[dbName]);
     });
 
-    buffer = [];
+    buffer[dbName] = [];
 }
 
 /**
@@ -45,9 +50,10 @@ function callbacks (err, client) {
  * Buffers a callback during connecting
  */
 function bufferCallback(dbName, callback) {
+    buffer[dbName] = buffer[dbName] || [];
 
-    if (buffer.length < 100) {
-        buffer.push({ dbName: dbName, callback: callback });
+    if (buffer[dbName].length < 100) {
+        buffer[dbName].push({ dbName: dbName, callback: callback });
     } else {
         callback(new Error("Number of callbacks in buffer exceeded."));
     }
@@ -60,29 +66,29 @@ function bufferCallback(dbName, callback) {
 function connect(dbName, callback) {
 
     // check if db is cached
-    if (_clientCache) {
-        return callback(null, _clientCache.db(dbName));
+    if (_clientCache[dbName]) {
+        return callback(null, _clientCache[dbName]);
     }
 
-    // check if db is connecting
-    if (_connecting) {
+    if (connectingDBS[dbName]) {
         return bufferCallback(dbName, callback);
     }
 
-    _connecting = true;
+    connectingDBS[dbName] = true;
     bufferCallback(dbName, callback);
 
-    // open conection
-    driver.open(function(err, client) {
-
+    // connect
+    MongoClient.connect(url + dbName, function(err, db) {
+        
         if (err) {
-            _connecting = false;
+            connectingDBS[dbName] = false;
             return callbacks(err, null);
         }
 
-        _connecting = false;
-        _clientCache = client;
-        callbacks(null, client);
+        connectingDBS[dbName] = false;
+        _clientCache[dbName] = db;
+
+        callbacks(null, dbName);
     });
 }
 

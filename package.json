@@ -15,7 +15,7 @@
         "socket.io": "*",
         "connect-mongo": "*",
         "cookie-parser": "*",
-        "mongodb": "1.4.15",
+        "mongodb": "*",
         "consolidate": "*",
         "ejs": "*",
         "morgan": "1.2.2",
