@@ -45,7 +45,14 @@ html(lang='en', ng-app="Portfolio")
                 .row
                     .col-sm-6.container1
                     .col-sm-6.container2
-                    .loadMore.col-sm-4.col-sm-offset-4(ng-click="addImages(skip)")
+                    .clearfix
+                    .spinner
+                        .bounce1
+                        .bounce2
+                        .bounce3
+                    .thankyou.text-center(ng-if="skip >= projects.length")
+                        h1 THANK YOU!
+                    .loadMore.notShown.col-sm-4.col-sm-offset-4(ng-click="addImages(skip)", ng-if="skip < projects.length")
                         h4 LOAD MORE
             .footer.col-xs-12
                 | Copyright &copy; All rights reserverd Iulia Magdalena Boieru 2015

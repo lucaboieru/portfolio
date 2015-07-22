@@ -13,30 +13,51 @@ Portfolio.controller("portfolioCtrl", function ($scope, $http) {
 
     $scope.addImages = function (skip) {
 
-        for (var i = skip; i < skip + $scope.limit; ++ i) {
-            (function (i) {
-                var url = window.location.origin + "/projects/" + $scope.projects[i];
+        $(".spinner").show();
+        $(".loadMore").hide();
 
-                //var url = "http://i.imgur.com/ZcGEA72.png";
-                $.embedly.extract(url).progress(function(obj) {
-                    // Grab images and create the colors.
-                    var img = obj.images[0];
-                    var color = "rgb(" + img.colors[0].color[0] + "," + img.colors[0].color[1] + "," + img.colors[0].color[2] + ")";
+        var heightLimit = 1200;
 
-                    // Display the image.
-                    displayImage(i, img, color);
+        function next(i, prevHeight) {
+
+            if (i >= $scope.projects.length) {
+                $(".spinner").hide();
+                return;
+            }
+
+            if (prevHeight > heightLimit) {
+                $(".spinner").hide();
+                $(".loadMore").show();
+                return;
+            }
+
+            $scope.skip ++;
+
+            var url = "http://104.155.46.85:9999/projects/" + $scope.projects[i];
+
+            $.embedly.extract(url).progress(function(obj) {
+                // Grab images and create the colors.
+                var img = obj.images[0];
+                var color = "rgb(" + img.colors[0].color[0] + "," + img.colors[0].color[1] + "," + img.colors[0].color[2] + ")";
+
+                // Display the image.
+                displayImage(i, img, color, function (height) {
+                    next(i + 2, height + prevHeight);
                 });
-            })(i);
+            });
         }
 
-        $scope.skip = skip + $scope.limit;
+        next(skip, 0);
+        next(skip + 1, 0);
     };
 });
 
-var displayImage = function(i, img, color) {
+var displayImage = function(i, img, color, callback) {
  
     var width = $(".container1").width(),
         height = Math.ceil(img.height * (width / img.width));
+
+    callback(height);
     
     var $temp = $('<div class="backgroundBlock"></div>');
 
