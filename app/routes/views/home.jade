@@ -36,6 +36,11 @@ html(lang='en', ng-app="Portfolio")
 
     body(ng-controller="portfolioCtrl")
 
+        #zoom.modal.fade
+            .modal-dialog.modal-lg
+                .modal-content
+                    .modal-body
+                        img.wide
         .container
             .header.mt-m
                 .line
@@ -43,17 +48,11 @@ html(lang='en', ng-app="Portfolio")
                 .clearfix
             .projectContainer.mt-l
                 .row
-                    .col-sm-6.container1
-                    .col-sm-6.container2
+                    .col-sm-3.container0
+                    .col-sm-3.container1
+                    .col-sm-3.container2
+                    .col-sm-3.container3
                     .clearfix
-                    .spinner
-                        .bounce1
-                        .bounce2
-                        .bounce3
-                    .thankyou.text-center(ng-if="skip >= projects.length")
-                        h1 THANK YOU!
-                    .loadMore.notShown.col-sm-4.col-sm-offset-4(ng-click="addImages(skip)", ng-if="skip < projects.length")
-                        h4 LOAD MORE
             .footer.col-xs-12
                 | Copyright &copy; All rights reserverd Iulia Magdalena Boieru 2015
 

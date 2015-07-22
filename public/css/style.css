@@ -215,6 +215,12 @@ body {
     opacity: 0;
 }
 
+.thumbnail:hover {
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background-color: rgb(24, 188, 156);
+    cursor: pointer;
+}
 
 
 
